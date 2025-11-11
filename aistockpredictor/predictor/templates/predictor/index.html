@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Stock Predictor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: #fff; font-family: 'Poppins', sans-serif; }
+    .container { margin-top: 60px; padding: 30px; background: rgba(255,255,255,0.1); border-radius: 15px; }
+    h1 { font-weight: 600; margin-bottom: 30px; }
+    input { border-radius: 8px; border: none; padding: 10px; }
+    button { background: #00bcd4; color: white; border: none; border-radius: 8px; padding: 10px 20px; }
+    button:hover { background: #0097a7; }
+    .analysis { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <h1>🤖 AI Stock Predictor</h1>
+    <form method="get" class="mb-4">
+      <input type="text" name="ticker" placeholder="Enter stock symbol (e.g., AAPL)" value="{{ ticker }}">
+      <button type="submit">Analyze</button>
+    </form>
+
+    <canvas id="stockChart"></canvas>
+
+    <div class="analysis mt-4">
+      <h4>📊 AI Analysis:</h4>
+      <p>{{ analysis }}</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const actualDates = {{ actual_dates|safe }};
+    const actualPrices = {{ actual_prices|safe }};
+    const predictedPrices = {{ predicted_prices|safe }};
+
+    const futureLabels = Array(predictedPrices.length).fill('').map((_, i) => `Future ${i+1}`);
+
+    const ctx = document.getElementById('stockChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: actualDates.concat(futureLabels),
+        datasets: [
+          { label: 'Actual', data: actualPrices.concat(Array(predictedPrices.length).fill(null)), borderColor: '#4caf50', tension: 0.3, borderWidth: 2 },
+          { label: 'Predicted', data: Array(actualPrices.length).fill(null).concat(predictedPrices), borderColor: '#ffca28', borderDash: [5,5], tension: 0.3, borderWidth: 2 },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: 'white' } } },
+        scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
+      }
+    });
+  </script>
+</body>
+</html>
